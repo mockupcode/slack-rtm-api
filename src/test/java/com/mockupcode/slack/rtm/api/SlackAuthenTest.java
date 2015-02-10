@@ -65,6 +65,7 @@ public class SlackAuthenTest {
 
         EasyMock.expect(httpClient.executeMethod(getMethod)).andReturn(HttpStatus.SC_OK);
         EasyMock.expect(getMethod.getResponseBodyAsStream()).andReturn(inputStream);
+        getMethod.releaseConnection();
 
         PowerMock.replay(httpClient, HttpClient.class, getMethod, GetMethod.class);
 
@@ -84,6 +85,7 @@ public class SlackAuthenTest {
 
         EasyMock.expect(httpClient.executeMethod(getMethod)).andReturn(HttpStatus.SC_OK);
         EasyMock.expect(getMethod.getResponseBodyAsStream()).andReturn(inputStream);
+        getMethod.releaseConnection();
 
         PowerMock.replay(httpClient, HttpClient.class, getMethod, GetMethod.class);
 
