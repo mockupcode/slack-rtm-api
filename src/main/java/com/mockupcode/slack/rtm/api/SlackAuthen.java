@@ -39,6 +39,8 @@ public class SlackAuthen {
         } catch (IOException ex) {
             slackInfo.setError("exception "+ex.getMessage());
             Logger.getLogger(SlackAuthen.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            getMethod.releaseConnection();
         }  
         return slackInfo;
     }
