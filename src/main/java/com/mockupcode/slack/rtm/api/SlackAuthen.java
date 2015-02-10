@@ -31,13 +31,13 @@ public class SlackAuthen {
                 ObjectMapper mapper = new ObjectMapper().setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
                 mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 
-                slackInfo = mapper.readValue(getMethod.getResponseBodyAsStream(), SlackInfo.class);
-                return slackInfo;
+                return mapper.readValue(getMethod.getResponseBodyAsStream(), SlackInfo.class);
             }else{
                 slackInfo.setError("http_status_"+httpStatus);
                 return slackInfo;
             }
         } catch (IOException ex) {
+            slackInfo.setError("exception "+ex.getMessage());
             Logger.getLogger(SlackAuthen.class.getName()).log(Level.SEVERE, null, ex);
         }  
         return slackInfo;
