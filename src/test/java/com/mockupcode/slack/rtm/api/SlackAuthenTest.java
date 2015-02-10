@@ -69,7 +69,7 @@ public class SlackAuthenTest {
 
         PowerMock.replay(httpClient, HttpClient.class, getMethod, GetMethod.class);
 
-        SlackInfo tokenAuthen = new SlackAuthen().tokenAuthen("token");
+        SlackInfo tokenAuthen = new SlackAuthen().tokenAuthen("token",null,0);
         assertThat(tokenAuthen.isOk(), is(false));
     }
 
@@ -89,7 +89,7 @@ public class SlackAuthenTest {
 
         PowerMock.replay(httpClient, HttpClient.class, getMethod, GetMethod.class);
 
-        SlackInfo tokenAuthen = new SlackAuthen().tokenAuthen("token");
+        SlackInfo tokenAuthen = new SlackAuthen().tokenAuthen("token",null,0);
         assertThat(tokenAuthen.isOk(), is(true));
     }
 
