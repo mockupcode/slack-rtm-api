@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mockupcode.slack.rtm.api;
 
 import com.mockupcode.slack.rtm.api.json.connection.SlackInfo;
@@ -28,6 +23,7 @@ public class SlackAuthen {
     public SlackInfo tokenAuthen(String token) {
         HttpClient client = new HttpClient();
         GetMethod getMethod = new GetMethod(SLACK_RTM_AUTHEN_URL+token);
+        SlackInfo slackInfo = new SlackInfo();
         
         try {
             int httpStatus = client.executeMethod(getMethod);
@@ -35,13 +31,16 @@ public class SlackAuthen {
                 ObjectMapper mapper = new ObjectMapper().setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
                 mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 
-                SlackInfo slackInfo = mapper.readValue(getMethod.getResponseBodyAsStream(), SlackInfo.class);
+                slackInfo = mapper.readValue(getMethod.getResponseBodyAsStream(), SlackInfo.class);
+                return slackInfo;
+            }else{
+                slackInfo.setError("http_status_"+httpStatus);
                 return slackInfo;
             }
         } catch (IOException ex) {
             Logger.getLogger(SlackAuthen.class.getName()).log(Level.SEVERE, null, ex);
-        }        
-        return new SlackInfo();
+        }  
+        return slackInfo;
     }
     
 }
