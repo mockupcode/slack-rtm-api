@@ -1,6 +1,5 @@
 package com.mockupcode.slack.rtm.api.validation;
 
-import java.net.Proxy;
 import static org.hamcrest.core.Is.*;
 import org.junit.After;
 import org.junit.AfterClass;

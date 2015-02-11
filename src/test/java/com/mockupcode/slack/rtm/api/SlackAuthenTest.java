@@ -11,11 +11,11 @@ import java.io.InputStream;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,15 +35,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest({SlackAuthen.class, HttpClient.class, GetMethod.class})
 public class SlackAuthenTest {
 
-    public SlackAuthenTest() {
-    }
-
     @BeforeClass
     public static void setUpClass() {
     }
 
     @AfterClass
     public static void tearDownClass() {
+    }
+
+    public SlackAuthenTest() {
     }
 
     @Before

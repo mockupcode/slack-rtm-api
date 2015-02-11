@@ -1,6 +1,5 @@
 package com.mockupcode.slack.rtm.api;
 
-import java.net.Proxy;
 import com.mockupcode.slack.rtm.api.validation.SlackValidation;
 
 /**

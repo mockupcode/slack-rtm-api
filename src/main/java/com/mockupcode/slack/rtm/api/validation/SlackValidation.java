@@ -1,7 +1,5 @@
 package com.mockupcode.slack.rtm.api.validation;
 
-import java.net.Proxy;
-
 /**
  *
  * @author Jirawong Wongdokpuang <greannetwork@gmail.com>

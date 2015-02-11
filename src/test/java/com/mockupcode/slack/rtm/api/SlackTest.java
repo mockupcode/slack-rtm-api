@@ -1,6 +1,5 @@
 package com.mockupcode.slack.rtm.api;
 
-import java.net.Proxy;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
