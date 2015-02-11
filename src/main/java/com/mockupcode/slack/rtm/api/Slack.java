@@ -12,7 +12,6 @@ public class Slack {
     private final SlackValidation slackValidation = SlackValidation.getInstance();
     
     private final String token;
-    private Proxy.Type proxyType;
     private String proxyUrl;
     private int proxyPort;
 
@@ -21,15 +20,14 @@ public class Slack {
         this.token = token;
     }
     
-    public Slack setProxy(Proxy.Type proxyType,String proxyUrl,int proxyPort){
-        slackValidation.validateProxy(proxyType, proxyUrl, proxyPort);
-        this.proxyType = proxyType;
+    public Slack setProxy(String proxyUrl,int proxyPort){
+        slackValidation.validateProxy(proxyUrl, proxyPort);
         this.proxyUrl = proxyUrl;
         this.proxyPort = proxyPort;
         return this;
     }
     
     public SlackConnection getConnection(){
-        return new SlackWebsocketConnection(token, proxyType, proxyUrl, proxyPort);
+        return new SlackWebsocketConnection(token, proxyUrl, proxyPort);
     }
 }

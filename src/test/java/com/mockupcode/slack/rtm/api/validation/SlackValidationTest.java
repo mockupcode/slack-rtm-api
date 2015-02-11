@@ -58,35 +58,21 @@ public class SlackValidationTest {
     }
     
     @Test
-    public void testProxyWhenNullTypeAndNullUrl() {
-        boolean result = slackValidation.validateProxy(null, null, -1);
+    public void testProxyWhenNullUrl() {
+        boolean result = slackValidation.validateProxy(null, -1);
         assertThat(result, is(false));
-    }
-    
-    @Test
-    public void testProxyWhenNullType(){
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("proxy type must provide");
-        slackValidation.validateProxy(null, "http://proxy.mockupcode.com", -1);
-    }
-    
-    @Test
-    public void testProxyWhenNullUrl(){
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("proxy url must provide");
-        slackValidation.validateProxy(Proxy.Type.HTTP, null, -1);
     }
     
     @Test
     public void testProxyWhenPortLessthanZero(){
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("proxy port must provide");
-        slackValidation.validateProxy(Proxy.Type.HTTP, "http://proxy.mockupcode.com", -1);
+        slackValidation.validateProxy("http://proxy.mockupcode.com", -1);
     }
     
     @Test
     public void testProxySuccess(){
-        boolean validateProxy = slackValidation.validateProxy(Proxy.Type.HTTP, "http://proxy.mockupcode.com", 8080);
+        boolean validateProxy = slackValidation.validateProxy("http://proxy.mockupcode.com", 8080);
         assertThat(validateProxy, is(true));
     }
 }

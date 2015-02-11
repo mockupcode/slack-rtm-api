@@ -53,24 +53,19 @@ public class SlackTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateSlackConnectionWithProxyButNotProvideProxyType() {
-        new Slack("token").setProxy(null, "http://proxy.mockupcode.com", 8080).getConnection();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testCreateSlackConnectionWithProxyButNotProvideProxyUrl() {
-        new Slack("token").setProxy(Proxy.Type.HTTP, null, 8080).getConnection();
+        new Slack("token").setProxy(null, 8080).getConnection();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateSlackConnectionWithProxyButProvidePortLessThanZero() {
-        new Slack("token").setProxy(Proxy.Type.HTTP, "http://proxy.mockupcode.com", -1);
+        new Slack("token").setProxy("http://proxy.mockupcode.com", -1);
     }
 
     @Test
     public void testCreateSlackConnectionWithProxySuccess() {
         try {
-            new Slack("token").setProxy(Proxy.Type.HTTP, "http://proxy.mockupcode.com", 8080);
+            new Slack("token").setProxy("http://proxy.mockupcode.com", 8080);
         } catch (Exception e) {
             fail("have exception " + e);
         }

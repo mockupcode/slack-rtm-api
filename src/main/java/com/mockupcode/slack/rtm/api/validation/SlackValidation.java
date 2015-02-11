@@ -27,16 +27,13 @@ public class SlackValidation {
         return token;
     }
 
-    public boolean validateProxy(Proxy.Type type, String url, int port) {
-        if(url != null && type == null){
-            throw new IllegalArgumentException("proxy type must provide");
-        }
-        if(url == null && type != null){
+    public boolean validateProxy(String url, int port) {
+        if(url == null && port >= 0){
             throw new IllegalArgumentException("proxy url must provide");
         }
         if(url != null && port < 0){
             throw new IllegalArgumentException("proxy port must provide");
         }
-        return !(url == null && type == null && port < 0);
+        return !(url == null && port < 0);
     }
 }
