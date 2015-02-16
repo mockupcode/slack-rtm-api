@@ -2,10 +2,8 @@ package com.mockupcode.slack.rtm.api;
 
 import com.mockupcode.slack.rtm.api.websocket.WebSocketEndpoint;
 import com.mockupcode.slack.rtm.api.json.connection.SlackInfo;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
-import javax.websocket.DeploymentException;
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.client.ClientProperties;
 import static org.hamcrest.core.Is.*;
@@ -17,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -133,6 +132,22 @@ public class SlackWebsocketConnectionTest {
         Mockito.verify(clientManager).connectToServer(Mockito.any(WebSocketEndpoint.class), Mockito.any(URI.class));
         PowerMockito.verifyStatic();
         ClientManager.createClient();
+    }
+    
+    @Test
+    public void testCreateWaitThreadAfterConnect() throws Exception{
+        SlackAuthen slackAuthen = PowerMockito.mock(SlackAuthen.class);
+        PowerMockito.whenNew(SlackAuthen.class).withNoArguments().thenReturn(slackAuthen);
+        PowerMockito.when(slackAuthen.tokenAuthen(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(slackInfo);
+        
+        ClientManager clientManager = PowerMockito.mock(ClientManager.class);
+        PowerMockito.mockStatic(ClientManager.class);
+        PowerMockito.when(ClientManager.createClient()).thenReturn(clientManager);
+        
+        SlackWebsocketConnection slackWebsocketConnection = PowerMockito.spy(new SlackWebsocketConnection("token", null, 8080));
+        slackWebsocketConnection.connect();
+        PowerMockito.doNothing().when(slackWebsocketConnection,"await");
+        PowerMockito.verifyPrivate(slackWebsocketConnection, VerificationModeFactory.atLeastOnce()).invoke("await");
     }
 
 }
