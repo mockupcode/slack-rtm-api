@@ -39,7 +39,7 @@ public class SlackWebsocketConnection implements SlackConnection {
         }
         try {
             session = client.connectToServer(new WebSocketEndpoint(), URI.create(slackInfo.getUrl()));
-            await();
+            //await();
         } catch (DeploymentException | IOException ex) {
             Logger.getLogger(SlackWebsocketConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
