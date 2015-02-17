@@ -1,9 +1,11 @@
 package com.mockupcode.slack.rtm.api;
 
-import com.mockupcode.slack.rtm.api.websocket.WebSocketEndpoint;
 import com.mockupcode.slack.rtm.api.json.connection.SlackInfo;
+import com.mockupcode.slack.rtm.api.json.message.SlackMessage;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+import javax.websocket.Endpoint;
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.client.ClientProperties;
 import static org.hamcrest.core.Is.*;
@@ -20,6 +22,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 /**
  *
@@ -129,7 +132,7 @@ public class SlackWebsocketConnectionTest {
         boolean connect = slack.connect();
         assertThat(connect, is(true));
 
-        Mockito.verify(clientManager).connectToServer(Mockito.any(WebSocketEndpoint.class), Mockito.any(URI.class));
+        Mockito.verify(clientManager).connectToServer(Mockito.any(Endpoint.class), Mockito.any(URI.class));
         PowerMockito.verifyStatic();
         ClientManager.createClient();
     }
@@ -148,6 +151,38 @@ public class SlackWebsocketConnectionTest {
         slackWebsocketConnection.connect();
         PowerMockito.doNothing().when(slackWebsocketConnection,"await");
         PowerMockito.verifyPrivate(slackWebsocketConnection, VerificationModeFactory.atLeastOnce()).invoke("await");
+    }
+    
+    @Test
+    public void testAddListener(){
+        SlackWebsocketConnection slackWebsocketConnection = new SlackWebsocketConnection("token", null, 8080);
+        slackWebsocketConnection.addSlackListener(new SlackListener(){
+
+            @Override
+            public void onMessage(SlackMessage slackMessage) {
+            }
+        });
+        
+        List<SlackListener> slackListeners = Whitebox.getInternalState(slackWebsocketConnection, "slackListeners");
+        assertThat(slackListeners.size(), is(1));
+    }
+    
+    @Test
+    public void testAddDuplicateListener(){
+        SlackWebsocketConnection slackWebsocketConnection = new SlackWebsocketConnection("token", null, 8080);
+        
+        SlackListener slackListener = new SlackListener(){
+            
+            @Override
+            public void onMessage(SlackMessage slackMessage) {
+            }
+        };
+        
+        slackWebsocketConnection.addSlackListener(slackListener);
+        slackWebsocketConnection.addSlackListener(slackListener);
+        
+        List<SlackListener> slackListeners = Whitebox.getInternalState(slackWebsocketConnection, "slackListeners");
+        assertThat(slackListeners.size(), is(1));
     }
 
 }
