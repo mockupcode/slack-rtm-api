@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mockupcode.slack.rtm.api;
+package com.mockupcode.slack.rtm.api.listener;
 
 import com.mockupcode.slack.rtm.api.json.message.SlackMessage;
 

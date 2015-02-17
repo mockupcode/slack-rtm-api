@@ -1,5 +1,6 @@
 package com.mockupcode.slack.rtm.api;
 
+import com.mockupcode.slack.rtm.api.listener.SlackListener;
 import com.mockupcode.slack.rtm.api.json.connection.SlackInfo;
 import com.mockupcode.slack.rtm.api.json.message.SlackMessage;
 import java.io.IOException;
