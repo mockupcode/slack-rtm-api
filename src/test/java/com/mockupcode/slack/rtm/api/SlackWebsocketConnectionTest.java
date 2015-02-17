@@ -6,6 +6,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler;
+import javax.websocket.Session;
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.client.ClientProperties;
 import static org.hamcrest.core.Is.*;
@@ -18,6 +21,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -136,53 +141,87 @@ public class SlackWebsocketConnectionTest {
         PowerMockito.verifyStatic();
         ClientManager.createClient();
     }
-    
+
     @Test
-    public void testCreateWaitThreadAfterConnect() throws Exception{
+    public void testCreateWaitThreadAfterConnect() throws Exception {
         SlackAuthen slackAuthen = PowerMockito.mock(SlackAuthen.class);
         PowerMockito.whenNew(SlackAuthen.class).withNoArguments().thenReturn(slackAuthen);
         PowerMockito.when(slackAuthen.tokenAuthen(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(slackInfo);
-        
+
         ClientManager clientManager = PowerMockito.mock(ClientManager.class);
         PowerMockito.mockStatic(ClientManager.class);
         PowerMockito.when(ClientManager.createClient()).thenReturn(clientManager);
-        
+
         SlackWebsocketConnection slackWebsocketConnection = PowerMockito.spy(new SlackWebsocketConnection("token", null, 8080));
         slackWebsocketConnection.connect();
-        PowerMockito.doNothing().when(slackWebsocketConnection,"await");
+        PowerMockito.doNothing().when(slackWebsocketConnection, "await");
         PowerMockito.verifyPrivate(slackWebsocketConnection, VerificationModeFactory.atLeastOnce()).invoke("await");
     }
-    
+
     @Test
-    public void testAddListener(){
+    public void testAddListener() {
         SlackWebsocketConnection slackWebsocketConnection = new SlackWebsocketConnection("token", null, 8080);
-        slackWebsocketConnection.addSlackListener(new SlackListener(){
+        SlackListener slackListener = PowerMockito.mock(SlackListener.class);
+        slackWebsocketConnection.addSlackListener(slackListener);
+
+        List<SlackListener> slackListeners = Whitebox.getInternalState(slackWebsocketConnection, "slackListeners");
+        assertThat(slackListeners.size(), is(1));
+    }
+
+    @Test
+    public void testAddDuplicateListener() {
+        SlackWebsocketConnection slackWebsocketConnection = new SlackWebsocketConnection("token", null, 8080);
+
+        SlackListener slackListener = PowerMockito.mock(SlackListener.class);
+
+        slackWebsocketConnection.addSlackListener(slackListener);
+        slackWebsocketConnection.addSlackListener(slackListener);
+
+        List<SlackListener> slackListeners = Whitebox.getInternalState(slackWebsocketConnection, "slackListeners");
+        assertThat(slackListeners.size(), is(1));
+    }
+
+    @Test
+    public void testCallSlackListenerAfterWebSocketGotMessage() throws Exception {
+        SlackWebsocketConnection slackWebsocketConnection = new SlackWebsocketConnection("token", null, 8080);
+        
+        SlackAuthen slackAuthen = PowerMockito.mock(SlackAuthen.class);
+        PowerMockito.whenNew(SlackAuthen.class).withNoArguments().thenReturn(slackAuthen);
+        PowerMockito.when(slackAuthen.tokenAuthen(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(slackInfo);
+
+        SlackListener slackListener = PowerMockito.mock(SlackListener.class);
+        slackWebsocketConnection.addSlackListener(slackListener);
+
+        final Session session = PowerMockito.mock(Session.class);
+        PowerMockito.doAnswer(new Answer<Object>() {
 
             @Override
-            public void onMessage(SlackMessage slackMessage) {
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] arguments = invocation.getArguments();
+                MessageHandler.Whole<String> msg = (MessageHandler.Whole<String>) arguments[0];
+                msg.onMessage("5555");
+                return null;
+            }
+        }).when(session).addMessageHandler(Mockito.any(MessageHandler.class));
+
+        ClientManager clientManager = PowerMockito.mock(ClientManager.class);
+        PowerMockito.when(clientManager.connectToServer(Mockito.any(Endpoint.class), Mockito.any(URI.class))).thenAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] arguments = invocation.getArguments();
+                Endpoint endpoint = (Endpoint) arguments[0];
+                endpoint.onOpen(session, null);
+                return null;
             }
         });
         
-        List<SlackListener> slackListeners = Whitebox.getInternalState(slackWebsocketConnection, "slackListeners");
-        assertThat(slackListeners.size(), is(1));
-    }
-    
-    @Test
-    public void testAddDuplicateListener(){
-        SlackWebsocketConnection slackWebsocketConnection = new SlackWebsocketConnection("token", null, 8080);
-        
-        SlackListener slackListener = new SlackListener(){
-            
-            @Override
-            public void onMessage(SlackMessage slackMessage) {
-            }
-        };
-        
-        slackWebsocketConnection.addSlackListener(slackListener);
-        slackWebsocketConnection.addSlackListener(slackListener);
-        
-        List<SlackListener> slackListeners = Whitebox.getInternalState(slackWebsocketConnection, "slackListeners");
-        assertThat(slackListeners.size(), is(1));
+        PowerMockito.mockStatic(ClientManager.class);
+        PowerMockito.when(ClientManager.createClient()).thenReturn(clientManager);
+
+        slackWebsocketConnection.connect();
+
+        Mockito.verify(slackListener).onMessage(Mockito.any(SlackMessage.class));
     }
 
 }
